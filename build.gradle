@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.pedrorok'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+
+    implementation("org.slf4j:slf4j-simple:2.0.16")
+
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
+
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation("org.jetbrains:annotations:15.0")
+}
+
+test {
+    useJUnitPlatform()
+}
