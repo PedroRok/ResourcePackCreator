@@ -35,14 +35,22 @@ public class WriterUtil {
             if (!fileName.endsWith(".png")) fileName += ".png";
             builder.append(fileName);
 
-            File output = new File(builder.toString());
-            if (!output.exists()) {
-                output.getParentFile().mkdirs();
-            }
+            File output = WriterUtil.createFile(builder.toString());
             ImageIO.write(bufferedImage, "png", output);
         } catch (IOException e) {
             LOGGER.error("Failed to write image to file: {}", e.getMessage());
         }
+    }
+
+    public static File createFile(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            boolean mkdir = file.getParentFile().mkdirs();
+            if (mkdir) {
+                LOGGER.debug("Created the {} file.", file.getName());
+            }
+        }
+        return file;
     }
 
 }

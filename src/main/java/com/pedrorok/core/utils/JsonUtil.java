@@ -65,17 +65,11 @@ public class JsonUtil {
         if (!fileName.endsWith(".json")) fileName += ".json";
         builder.append(fileName);
 
-        File file = new File(builder.toString());
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        if (file == null) return;
-        Logger logger = RPCore.LOGGER;
+        File file = WriterUtil.createFile(builder.toString());
 
         if (element == null) {
             boolean delete = file.delete();
-            if (delete) logger.info("Created the " + file.getName() + " file.");
+            if (delete) RPCore.LOGGER.info("Created the {} file.", file.getName());
             return;
         }
 
@@ -83,10 +77,8 @@ public class JsonUtil {
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(GSON.toJson(element));
             fileWriter.flush();
-
         } catch (IOException e) {
-            logger.info("Could not write the " + file.getName() + " file.");
-            e.printStackTrace();
+            RPCore.LOGGER.info("Could not write the {} file.", file.getName(), e);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.pedrorok.core.modules.armor;
 
 import com.google.gson.JsonObject;
+import com.pedrorok.core.utils.JsonBuilder;
 import com.pedrorok.core.utils.JsonUtil;
 import com.pedrorok.core.utils.WriterUtil;
 
@@ -18,7 +19,6 @@ public record ArmorEntity(String name, Color color, Map<String, BufferedImage> i
     public ArmorEntity(String name, Map<String, BufferedImage> images) {
         this(name, calculateAverageColor(images.get("layer_1")), images);
     }
-
 
     private static Color calculateAverageColor(BufferedImage image) {
         long sumR = 0, sumG = 0, sumB = 0;
@@ -44,18 +44,15 @@ public record ArmorEntity(String name, Color color, Map<String, BufferedImage> i
     public void generateItemsFile(String path, String customPath) {
         images.forEach((name, img) -> {
             if (name.contains("layer")) return;
+            JsonBuilder jsonBuilder = new JsonBuilder("minecraft:item/generated");
 
             String[] pathFile = path.split(":");
             WriterUtil.writeImage(pathFile[0], "item/" + pathFile[1], name, img);
 
-            // Cria um elemento json e escreve as propriedades nele como objeto
-            JsonObject jsonElement = new JsonObject();
-            jsonElement.addProperty("parent", "minecraft:item/generated");
-            JsonObject jsonTextures = new JsonObject();
-            jsonTextures.addProperty("layer0", customPath + ":item/armor/transparent");
-            jsonTextures.addProperty("layer1", path.replace("output/assets/", "").replace(":", ":item/") + name);
-            jsonElement.add("textures", jsonTextures);
-            JsonUtil.writeFile(pathFile[0], "item/" + pathFile[1], name, jsonElement);
+            jsonBuilder.addTexture("layer0", customPath + ":item/armor/transparent");
+            jsonBuilder.addTexture("layer1", path.replace("output/assets/", "").replace(":", ":item/") + name);
+
+            JsonUtil.writeFile(pathFile[0], "item/" + pathFile[1], name, jsonBuilder.build());
         });
     }
 

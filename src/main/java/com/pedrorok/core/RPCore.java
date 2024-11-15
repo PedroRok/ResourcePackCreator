@@ -25,13 +25,16 @@ public class RPCore {
         File file = new File("resources");
         if (!file.exists() || !file.isDirectory()) {
             LOGGER.error("Resources folder not found, creating...");
-            file.mkdir();
-            LOGGER.error("Resources folder created, please put the files you want to pack in the resources folder and run the program again.");
+            boolean mkdir = file.mkdirs();
+            if (mkdir) {
+                LOGGER.info("Resources folder created, please put the files you want to pack in the resources folder and run the program again.");
+            }
             return;
         }
         String customObjectsFolder = "rokpack"; // temporary
 
         itemModule = new RPItemModule();
+
 
         for (File listFile : file.listFiles()) {
             if (listFile.getName().equals("armors"))

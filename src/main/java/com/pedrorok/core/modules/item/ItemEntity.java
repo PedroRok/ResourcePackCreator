@@ -3,6 +3,7 @@ package com.pedrorok.core.modules.item;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.pedrorok.core.utils.JsonBuilder;
 import com.pedrorok.core.utils.JsonUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,27 +24,15 @@ public record ItemEntity(String name, String parent, Map<String, String> texture
     }
 
     public void writeFile(@Nullable String path) {
-        // Cria um elemento json e escreve as propriedades nele como objeto
-        JsonObject jsonElement = new JsonObject();
-        jsonElement.add("parent", new JsonPrimitive(parent));
-        JsonObject jsonTextures = new JsonObject();
-        for (Map.Entry<String, String> entry : textures.entrySet()) {
-            jsonTextures.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
-        }
-        jsonElement.add("textures", jsonTextures);
 
-        JsonArray overrides = new JsonArray();
+        JsonBuilder jsonBuilder = new JsonBuilder(parent);
+        for (Map.Entry<String, String> entry : textures.entrySet()) {
+            jsonBuilder.addTexture(entry.getKey(), entry.getValue());
+        }
 
         for (Predicate<?> predicateValue : predicateList) {
-            JsonObject override = new JsonObject();
-            JsonObject predicate = new JsonObject();
-            predicate.add(predicateValue.type().getValue(), new JsonPrimitive(predicateValue.value()));
-            override.add("predicate", predicate);
-            override.add("model", new JsonPrimitive(predicateValue.modelPath()));
-            overrides.add(override);
+            jsonBuilder.addOverride(predicateValue.type().getValue(), predicateValue.value(), predicateValue.modelPath());
         }
-
-        jsonElement.add("overrides", overrides);
 
         String mainFolder = null;
         String pathFile = "item";
@@ -53,6 +42,6 @@ public record ItemEntity(String name, String parent, Map<String, String> texture
             pathFile = pathSplit[1];
         }
 
-        JsonUtil.writeFile(mainFolder, pathFile, name, jsonElement);
+        JsonUtil.writeFile(mainFolder, pathFile, name, jsonBuilder.build());
     }
 }

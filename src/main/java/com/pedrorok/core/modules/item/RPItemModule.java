@@ -30,17 +30,10 @@ public class RPItemModule {
             items.put(minecraftItemName, item);
         }
         item.predicateList().add(new Predicate<>(customModelData, PredicateType.CUSTOM_MODEL_DATA, path));
-        //RPCore.LOGGER.info("Added custom model to item: {} with path: {} and predicateList: {}", minecraftItemName, path, customModelData);
-        File file = new File("output/assets/minecraft/models/item/" + minecraftItemName + ".json");
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-        }
-
         item.writeFile(null);
     }
 
     public int addItemCustomModel(String minecraftItemName, String path) {
-
         int lastModelData = 0;
         if (items.containsKey(minecraftItemName)) {
             for (Predicate<?> predicate : items.get(minecraftItemName).predicateList()) {
