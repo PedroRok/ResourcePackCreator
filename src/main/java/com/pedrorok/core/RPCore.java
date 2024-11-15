@@ -1,5 +1,6 @@
 package com.pedrorok.core;
 
+import com.pedrorok.core.config.RPConfig;
 import com.pedrorok.core.modules.armor.RPArmorModule;
 import com.pedrorok.core.modules.item.RPItemModule;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class RPCore {
 
     private RPArmorModule armorModule = null;
     private RPItemModule itemModule = null;
+    private RPConfig config;
 
     public RPCore() {
         LOGGER.info("Starting Resource pack creator...");
@@ -31,14 +33,14 @@ public class RPCore {
             }
             return;
         }
-        String customObjectsFolder = "rokpack"; // temporary
 
+        config = new RPConfig();
+        config.init();
         itemModule = new RPItemModule();
-
 
         for (File listFile : file.listFiles()) {
             if (listFile.getName().equals("armors"))
-                armorModule = new RPArmorModule(listFile, itemModule, customObjectsFolder);
+                armorModule = new RPArmorModule(listFile, this, config.getCustomizationFolder());
         }
         armorModule.createArmorItems();
     }
@@ -46,4 +48,5 @@ public class RPCore {
     public static void main(String[] args) {
         new RPCore();
     }
+
 }

@@ -14,10 +14,18 @@ import java.util.Map;
  * @author Rok, Pedro Lucas nmm. Created on 12/11/2024
  * @project ResourcePackCreator
  */
-public record ArmorEntity(String name, Color color, Map<String, BufferedImage> images) {
+public record ArmorEntity(String name, Color color, Map<String, BufferedImage> images, int modelData) {
+
+    public ArmorEntity(String name, Map<String, BufferedImage> images, int modelData) {
+        this(name, calculateAverageColor(images.get("layer_1")), images, modelData);
+    }
+
+    public ArmorEntity(String name, Color color, Map<String, BufferedImage> images) {
+        this(name, color, images, -1);
+    }
 
     public ArmorEntity(String name, Map<String, BufferedImage> images) {
-        this(name, calculateAverageColor(images.get("layer_1")), images);
+        this(name, calculateAverageColor(images.get("layer_1")), images, -1);
     }
 
     private static Color calculateAverageColor(BufferedImage image) {

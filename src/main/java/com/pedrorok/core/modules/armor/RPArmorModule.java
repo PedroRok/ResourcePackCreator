@@ -1,6 +1,7 @@
 package com.pedrorok.core.modules.armor;
 
 import com.pedrorok.core.RPCore;
+import com.pedrorok.core.config.ArmorConfig;
 import com.pedrorok.core.modules.item.RPItemModule;
 import com.pedrorok.core.utils.WriterUtil;
 
@@ -17,13 +18,14 @@ import java.util.*;
  */
 public class RPArmorModule {
 
-    private final RPItemModule itemModule;
     private final Map<String, ArmorEntity> armors = new HashMap<>();
     private final String customFolder;
 
-    public RPArmorModule(File armorFolder, RPItemModule itemModule, String customFolder) {
-        this.itemModule = itemModule;
+    private final RPCore core;
+
+    public RPArmorModule(File armorFolder, RPCore core, String customFolder) {
         RPCore.LOGGER.info("Searching for armors...");
+        this.core = core;
         this.customFolder = customFolder;
         searchArmors(armorFolder, customFolder + ":armor/");
     }
@@ -71,25 +73,37 @@ public class RPArmorModule {
             RPCore.LOGGER.error("Missing layer1 or layer2 image in armor folder: {}", dir.getName());
             return null;
         }
-        ArmorEntity arm = new ArmorEntity(dir.getName().replace(".png", ""), images);
-        //RPCore.LOGGER.info("Found armor: {}, with color: {}", dir.getName(), "#" + Integer.toHexString(arm.color().getRGB() & 0xFFFFFF));
-        return arm;
+
+        ArmorConfig armorConfig = core.getConfig().getArmorConfig(dir.getName());
+
+        ArmorEntity armorEntity;
+        if (armorConfig != null) {
+            if (armorConfig.color() == null) {
+                armorEntity = new ArmorEntity(dir.getName(), images, armorConfig.model());
+            } else {
+                armorEntity = new ArmorEntity(dir.getName(), armorConfig.color(), images, armorConfig.model());
+            }
+        } else {
+            armorEntity = new ArmorEntity(dir.getName(), images);
+        }
+
+        return armorEntity;
     }
 
     public void createArmorItems() {
+        RPItemModule itemModule = core.getItemModule();
         armors.forEach((path, armor) -> {
-            int model = -1;
+            int model = armor.modelData();
             for (String fileName : armor.images().keySet()) {
                 String fName = fileName.toLowerCase();
-
                 if (fName.contains("helmet")) {
-                    model = itemModule.addItemCustomModel("leather_helmet", path + fileName);
+                    model = itemModule.addItemCustomModel("leather_helmet", path + fileName, model);
                 } else if (fName.contains("chestplate")) {
-                    model = itemModule.addItemCustomModel("leather_chestplate", path + fileName);
+                    model = itemModule.addItemCustomModel("leather_chestplate", path + fileName, model);
                 } else if (fName.contains("leggings")) {
-                    model = itemModule.addItemCustomModel("leather_leggings", path + fileName);
+                    model = itemModule.addItemCustomModel("leather_leggings", path + fileName, model);
                 } else if (fName.contains("boots")) {
-                    model = itemModule.addItemCustomModel("leather_boots", path + fileName);
+                    model = itemModule.addItemCustomModel("leather_boots", path + fileName, model);
                 }
             }
             RPCore.LOGGER.info("Added armor: {} \\ with model: {} \\ with color: {}", armor.name(), model, "#" + Integer.toHexString(armor.color().getRGB() & 0xFFFFFF));
@@ -130,7 +144,7 @@ public class RPArmorModule {
         try {
             defaultLayer = ImageIO.read(getClass().getClassLoader().getResourceAsStream("default/minecraft/textures/models/armor/leather_layer_"+ (layer1 ? "1" : "2") +".png"));
         } catch (IOException e) {
-            e.printStackTrace();
+            RPCore.LOGGER.error("Error reading default layer image: {}", e.getMessage());
             return null;
         }
 

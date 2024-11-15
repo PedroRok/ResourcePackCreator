@@ -19,7 +19,11 @@ public class RPItemModule {
     public RPItemModule() {
     }
 
-    public void addItemCustomModel(String minecraftItemName, String path, int customModelData) {
+    public int addItemCustomModel(String minecraftItemName, String path, int customModelData) {
+        if (customModelData == -1) {
+            return addItemCustomModel(minecraftItemName, path);
+        }
+
         ItemEntity item = items.get(minecraftItemName);
         if (item == null) {
             MinecraftItemAssets byName = MinecraftItemAssets.getByName(minecraftItemName);
@@ -31,6 +35,7 @@ public class RPItemModule {
         }
         item.predicateList().add(new Predicate<>(customModelData, PredicateType.CUSTOM_MODEL_DATA, path));
         item.writeFile(null);
+        return customModelData;
     }
 
     public int addItemCustomModel(String minecraftItemName, String path) {
