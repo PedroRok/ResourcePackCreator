@@ -23,6 +23,7 @@ public class RPItemModule {
         if (customModelData == -1) {
             return addItemCustomModel(minecraftItemName, path);
         }
+        path = path.replace(":", ":item/");
 
         ItemEntity item = items.get(minecraftItemName);
         if (item == null) {
@@ -46,7 +47,7 @@ public class RPItemModule {
                 lastModelData = Math.max(lastModelData, (int) predicate.value());
             }
         }
-        addItemCustomModel(minecraftItemName, path.replace(":", ":item/"), lastModelData + 1);
+        addItemCustomModel(minecraftItemName, path, lastModelData + 1);
         return lastModelData + 1;
     }
 

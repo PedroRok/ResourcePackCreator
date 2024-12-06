@@ -36,6 +36,10 @@ public class RPArmorModule {
                 searchArmors(armorDir, subDir + armorDir.getName() + "/");
                 continue;
             }
+            if (core.getConfig().getArmorConfig(dir.getName()) == null) {
+                RPCore.LOGGER.warn("Armor config not found for: {}", dir.getName());
+                break;
+            }
             ArmorEntity armor = importArmor(dir);
             if (armor == null) break;
             armors.put(subDir, armor);
@@ -155,8 +159,8 @@ public class RPArmorModule {
             images.put(value.images().get("layer_" + (layer1 ? "1" : "2")), value.color());
         }
 
-        int totalWidth = (images.size() * 128); // 128 é a largura após o redimensionamento
-        int height = 64; // altura após o redimensionamento
+        int totalWidth = (images.size() * 128);
+        int height = 64;
 
         BufferedImage combined = new BufferedImage(totalWidth, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = combined.createGraphics();
@@ -165,13 +169,10 @@ public class RPArmorModule {
         int currentX = 0;
         for (Map.Entry<BufferedImage, Color> img : images.entrySet()) {
             g2d.drawImage(img.getKey(), currentX, 0, null);
-            // Coloca a cor média no primeiro pixel
             if (img.getValue() != null) {
                 combined.setRGB(currentX, 0, img.getValue().getRGB());
                 combined.setRGB(currentX + 2, 0, Color.BLACK.getRGB());
             }
-            // Coloca o pixel preto no terceiro pixel
-
             currentX += 128;
         }
 
